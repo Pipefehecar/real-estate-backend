@@ -1,0 +1,45 @@
+@base_url=http://localhost:3000
+
+
+#* PROPERTIES
+### Get Properties
+GET {{base_url}}/properties HTTP/1.1
+Content-Type: application/json
+
+
+### Get Property by ID
+GET {{base_url}}/properties/bf65910d-8535-4d8c-bc1d-838ff07260af HTTP/1.1
+Content-Type: application/json
+
+### Create Property
+POST {{base_url}}/properties HTTP/1.1
+Content-Type: application/json
+
+{
+    "title": "Big House on the Hill",
+    "description": "This is a nice house",
+    "address": "Address 1",
+    "price": 1000000,
+    "type": "sale",
+    "bedrooms": 3,
+    "bathrooms": 2,
+    "size": 100,
+    "area": 15,
+    "garage": true,
+    "images": ["https://via.placeholder.com/150"],
+    "status": "active"
+}
+
+### Update property
+PATCH  {{base_url}}/properties/bf65910d-8535-4d8c-bc1d-838ff07260af HTTP/1.1
+Content-Type: application/json
+
+{
+    "title": "Big House on the Hill2",
+    "description": "This is a nice REALLY house"
+}
+
+
+
+DELETE  {{base_url}}/properties/bf65910d-8535-4d8c-bc1d-838ff07260af HTTP/1.1
+Content-Type: application/json
