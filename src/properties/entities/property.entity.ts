@@ -1,10 +1,10 @@
 import { BeforeInsert, BeforeUpdate, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { PropertyStatus, PropertyType } from '../enums';
+import { AbstractEntity } from '../../common/entities';
 
 @Entity()
-export class Property {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+export class Property extends AbstractEntity {
+  
   @Column('varchar', { length: 100, unique: true })
   title: string;
   @Column('text')

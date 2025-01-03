@@ -9,11 +9,14 @@ import {
   Query,
   ValidationPipe,
 } from '@nestjs/common';
-import { PaginationDto } from 'src/common/dtos/pagination.dto';
-import { PropertiesServiceDb } from '../services';
 import { CreatePropertyDto } from './dtos';
+import { PropertiesServiceDb } from './services';
+import { PageOptionsDto, PageDto, PaginationDto } from '../common/dtos';
+import { ApiPaginatedResponse } from '../common/decorators';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('properties')
+@ApiTags('properties')
 export class PropertiesController {
   constructor(private readonly propertiesService: PropertiesServiceDb) {}
 
@@ -22,11 +25,16 @@ export class PropertiesController {
     return this.propertiesService.create(createPropertyDto);
   }
 
-  @Get()
+  @Get('simple-pagination')
   findAll(@Query(ValidationPipe) paginationDto: PaginationDto) {
     console.log(paginationDto);
     const { limit = 10, offset = 0 } = paginationDto;
     return this.propertiesService.findAll(limit, offset);
+  }
+  @Get()
+  @ApiPaginatedResponse(CreatePropertyDto)
+  findAllPaginated(@Query() pageOptionsDto: PageOptionsDto):Promise<PageDto<CreatePropertyDto>> {
+    return this.propertiesService.findAllPaginated(pageOptionsDto);
   }
 
   @Get(':id')

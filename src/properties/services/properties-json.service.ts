@@ -1,12 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { v4 as uuid } from 'uuid';
-import { CreatePropertyDto, UpdatePropertyDto } from '../properties/dtos';
-import { PropertyStatus, PropertyType } from '../properties/enums';
-import { Property } from '../properties/interfaces';
+import { CreatePropertyDto, UpdatePropertyDto } from '../dtos';
+import { PropertyStatus, PropertyType } from '../enums';
+import { Property } from '../interfaces';
 
 @Injectable()
 export class PropertiesService {
-
   private properties: Property[] = [
     {
       id: uuid(),

@@ -8,6 +8,12 @@
 GET {{base_url}}/properties?limit={{limit}}&offset={{offset}} HTTP/1.1
 Content-Type: application/json
 
+### Get Properties Pretty Pagination
+@page=1
+@take=1
+@order=DESC
+GET {{base_url}}/properties?page={{page}}&take={{take}}&order={{order}} HTTP/1.1
+Content-Type: application/json
 
 
 ### Get Property by ID

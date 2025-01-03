@@ -6,9 +6,10 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { PageDto, PageOptionsDto, PageMetaDto } from '../../common/dtos';
 import { Repository } from 'typeorm';
-import { CreatePropertyDto, UpdatePropertyDto } from '../properties/dtos';
-import { Property as PropertyEntity } from '../properties/entities/property.entity';
+import { CreatePropertyDto, UpdatePropertyDto } from '../dtos';
+import { Property as PropertyEntity } from '../entities/property.entity';
 
 @Injectable()
 export class PropertiesServiceDb {
@@ -28,19 +29,31 @@ export class PropertiesServiceDb {
     }
   }
 
+  public async findAllPaginated(
+    pageOptionsDto: PageOptionsDto,
+  ): Promise<PageDto<CreatePropertyDto>> {
+    const queryBuilder = this.propertyRepository.createQueryBuilder('property');
+    queryBuilder
+      .orderBy('property.id', pageOptionsDto.order)
+      .skip(pageOptionsDto.skip)
+      .take(pageOptionsDto.take);
+      
+    const itemCount = await queryBuilder.getCount();
+    const { entities } = await queryBuilder.getRawAndEntities();
+    const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto });
+
+    return new PageDto(entities, pageMetaDto);
+  }
+
   async findAll(limit: number, offset: number) {
     return await this.propertyRepository.find({ take: limit, skip: offset });
   }
 
   async findOneById(id: string) {
-    // try{
     const property = this.propertyRepository.findOneBy({ id });
     if (!property) console.log('Property with id ${id} not found');
-    throw new NotFoundException(`Property with id ${id} not found`);
+      throw new NotFoundException(`Property with id ${id} not found`);
     return property;
-    // } catch (error) {
-    //     this.handleError(error);
-    // }
   }
 
   async update(id: string, updatePropertyDto: UpdatePropertyDto) {
