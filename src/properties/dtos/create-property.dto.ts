@@ -36,4 +36,8 @@ export class CreatePropertyDto {
     @ArrayUnique()
     @IsString({ each: true })
     images: string[];
+    @IsString()
+    @IsOptional()
+    @MinLength(8)
+    slug: string;
 }

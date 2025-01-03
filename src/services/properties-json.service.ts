@@ -1,12 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { v4 as uuid } from 'uuid';
-import { CreatePropertyDto } from './dto/create-property.dto';
-import { UpdatePropertyDto } from './dto/update-property.dto';
-import { PropertyStatus, PropertyType } from './enums';
-import { Property } from './interfaces';
+import { CreatePropertyDto, UpdatePropertyDto } from '../properties/dtos';
+import { PropertyStatus, PropertyType } from '../properties/enums';
+import { Property } from '../properties/interfaces';
 
 @Injectable()
 export class PropertiesService {
+
   private properties: Property[] = [
     {
       id: uuid(),
@@ -105,6 +105,6 @@ export class PropertiesService {
 
   remove(id: string) {
     this.findOneById(id);
-    this.properties.filter( property => property.id !== id)
+    this.properties.filter((property) => property.id !== id);
   }
 }

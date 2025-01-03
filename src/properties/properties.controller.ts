@@ -7,16 +7,14 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
-  UsePipes,
-  ValidationPipe,
+  HttpCode,
 } from '@nestjs/common';
-import { CreatePropertyDto } from './dto/create-property.dto';
-import { UpdatePropertyDto } from './dto/update-property.dto';
-import { PropertiesService } from './properties.service';
+import { PropertiesServiceDb } from '../services';
+import { CreatePropertyDto, UpdatePropertyDto } from './dtos';
 
 @Controller('properties')
 export class PropertiesController {
-  constructor(private readonly propertiesService: PropertiesService) {}
+  constructor(private readonly propertiesService: PropertiesServiceDb) {}
 
   @Post()
   create(@Body() createPropertyDto: CreatePropertyDto) {
@@ -33,15 +31,16 @@ export class PropertiesController {
     return this.propertiesService.findOneById(id);
   }
 
-  @Patch(':id')
-  update(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() updatePropertyDto: UpdatePropertyDto,
-  ) {
-    return this.propertiesService.update(id, updatePropertyDto);
-  }
+  // @Patch(':id')
+  // update(
+  //   @Param('id', ParseUUIDPipe) id: string,
+  //   @Body() updatePropertyDto: UpdatePropertyDto,
+  // ) {
+  //   return this.propertiesService.update(id, updatePropertyDto);
+  // }
 
   @Delete(':id')
+  // @HttpCode(204)
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.propertiesService.remove(id);
   }
