@@ -28,16 +28,15 @@ export class PropertiesServiceDb {
     }
   }
 
-  async findAll() {
-    return await this.propertyRepository.find();
+  async findAll(limit: number, offset: number) {
+    return await this.propertyRepository.find({ take: limit, skip: offset });
   }
 
   async findOneById(id: string) {
     // try{
     const property = this.propertyRepository.findOneBy({ id });
-    if (!property)
-      console.log('Property with id ${id} not found');
-      throw new NotFoundException(`Property with id ${id} not found`);
+    if (!property) console.log('Property with id ${id} not found');
+    throw new NotFoundException(`Property with id ${id} not found`);
     return property;
     // } catch (error) {
     //     this.handleError(error);

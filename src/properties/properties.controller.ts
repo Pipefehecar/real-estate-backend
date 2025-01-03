@@ -5,12 +5,13 @@ import {
   Get,
   Param,
   ParseUUIDPipe,
-  Patch,
   Post,
-  HttpCode,
+  Query,
+  ValidationPipe,
 } from '@nestjs/common';
+import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { PropertiesServiceDb } from '../services';
-import { CreatePropertyDto, UpdatePropertyDto } from './dtos';
+import { CreatePropertyDto } from './dtos';
 
 @Controller('properties')
 export class PropertiesController {
@@ -22,8 +23,10 @@ export class PropertiesController {
   }
 
   @Get()
-  findAll() {
-    return this.propertiesService.findAll();
+  findAll(@Query(ValidationPipe) paginationDto: PaginationDto) {
+    console.log(paginationDto);
+    const { limit = 10, offset = 0 } = paginationDto;
+    return this.propertiesService.findAll(limit, offset);
   }
 
   @Get(':id')
