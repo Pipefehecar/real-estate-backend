@@ -8,7 +8,7 @@ export class PaginationDto {
   @IsNumber()
   @IsOptional()
   @Transform(({ value }) => {
-    console.log(typeof value); // => string / I'm just testing here
+    // console.log(typeof value); // => string / I'm just testing here
     return value;
   })
   @Min(1)

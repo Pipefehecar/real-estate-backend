@@ -6,10 +6,14 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PageDto, PageOptionsDto, PageMetaDto } from '../../common/dtos';
-import { Repository } from 'typeorm';
+import { plainToInstance } from 'class-transformer';
+import { PageDto, PageMetaDto, PageOptionsDto } from 'src/common/dtos';
+import { DataSource, EntityManager, Repository } from 'typeorm';
 import { CreatePropertyDto, UpdatePropertyDto } from '../dtos';
-import { Property as PropertyEntity } from '../entities/property.entity';
+import {
+  PropertyImage as ImageEntity,
+  Property as PropertyEntity,
+} from '../entities';
 
 @Injectable()
 export class PropertiesServiceDb {
@@ -17,13 +21,23 @@ export class PropertiesServiceDb {
   constructor(
     @InjectRepository(PropertyEntity)
     private propertyRepository: Repository<PropertyEntity>,
+    @InjectRepository(ImageEntity)
+    private propertyImageRepository: Repository<ImageEntity>,
+
+    private readonly dataSource: DataSource,
   ) {}
 
   async create(createPropertyDto: CreatePropertyDto) {
     try {
-      const newProperty = this.propertyRepository.create(createPropertyDto);
+      const { images = [], ...propertyDetails } = createPropertyDto;
+      const newProperty = this.propertyRepository.create({
+        ...propertyDetails,
+        images: images.map((imageUrl) =>
+          this.propertyImageRepository.create({ url: imageUrl }),
+        ),
+      });
       await this.propertyRepository.save(newProperty);
-      return newProperty;
+      return { ...newProperty, images };
     } catch (error) {
       this.handleError(error);
     }
@@ -32,41 +46,99 @@ export class PropertiesServiceDb {
   public async findAllPaginated(
     pageOptionsDto: PageOptionsDto,
   ): Promise<PageDto<CreatePropertyDto>> {
-    const queryBuilder = this.propertyRepository.createQueryBuilder('property');
+    const queryBuilder = this.propertyRepository.createQueryBuilder('property'); //alias
     queryBuilder
       .orderBy('property.id', pageOptionsDto.order)
       .skip(pageOptionsDto.skip)
-      .take(pageOptionsDto.take);
-      
+      .take(pageOptionsDto.take)
+      .leftJoinAndSelect('property.images', 'image');
+
     const itemCount = await queryBuilder.getCount();
     const { entities } = await queryBuilder.getRawAndEntities();
+
     const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto });
 
-    return new PageDto(entities, pageMetaDto);
+    const transformedEntities = entities.map((property) => ({
+      ...property,
+      images: property.images.map((image) => image.url),
+    }));
+    return new PageDto(transformedEntities, pageMetaDto);
   }
 
   async findAll(limit: number, offset: number) {
-    return await this.propertyRepository.find({ take: limit, skip: offset });
+    const properties = await this.propertyRepository.find({
+      take: limit,
+      skip: offset,
+      relations: { images: true },
+    });
+    //* usando eager: true en la relación images no es necesario hacer el map
+    // return properties.map((property) => ({
+    //   ...property,
+    //   images: property.images.map((image) => image.url),
+    // }));
+
+    return plainToInstance(PropertyEntity, properties);
   }
 
   async findOneById(id: string) {
-    const property = this.propertyRepository.findOneBy({ id });
-    if (!property) console.log('Property with id ${id} not found');
+    const property = await this.propertyRepository.findOneBy({ id });
+    if (!property)
       throw new NotFoundException(`Property with id ${id} not found`);
     return property;
   }
 
   async update(id: string, updatePropertyDto: UpdatePropertyDto) {
-    this.findOneById(id);
+    const { images = [], ...propertyDetails } = updatePropertyDto;
+    const property = await this.propertyRepository.preload({
+      id,
+      ...propertyDetails,
+    });
+
+    if (!property)
+      throw new NotFoundException(`Property with id ${id} not found`);
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    queryRunner.connect();
+    queryRunner.startTransaction();
     try {
-      return this.propertyRepository.update(id, updatePropertyDto);
+      // Actualizar imágenes
+      if ( images )
+        await this.updatePropertyImages(property, images, queryRunner.manager);
+
+      // Guardar la propiedad actualizada
+      await queryRunner.manager.save(property);
+
+      await queryRunner.commitTransaction();
+
     } catch (error) {
+      await queryRunner.rollbackTransaction();
       this.handleError(error);
+    } finally {
+      await queryRunner.release();
+    }
+    return { ...property, images };
+  }
+
+  private async updatePropertyImages(
+    property: PropertyEntity,
+    images: string[],
+    manager: EntityManager,
+  ) {
+    // Eliminar imágenes existentes
+    await manager.delete(ImageEntity, { property });
+
+    // Si hay imágenes nuevas, asociarlas a la propiedad
+    if (images.length > 0) {
+      property.images = images.map((imageUrl) =>
+        this.propertyImageRepository.create({ url: imageUrl, property }),
+      );
+    } else {
+      property.images = [];
     }
   }
 
   async remove(id: string) {
-    this.findOneById(id);
+    await this.findOneById(id);
     await this.propertyRepository.delete(id);
   }
 

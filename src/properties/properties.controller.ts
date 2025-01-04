@@ -6,14 +6,16 @@ import {
   Param,
   ParseUUIDPipe,
   Post,
+  Patch,
   Query,
   ValidationPipe,
 } from '@nestjs/common';
-import { CreatePropertyDto } from './dtos';
+import { CreatePropertyDto, UpdatePropertyDto } from './dtos';
 import { PropertiesServiceDb } from './services';
 import { PageOptionsDto, PageDto, PaginationDto } from '../common/dtos';
 import { ApiPaginatedResponse } from '../common/decorators';
 import { ApiTags } from '@nestjs/swagger';
+import { plainToInstance } from 'class-transformer';
 
 @Controller('properties')
 @ApiTags('properties')
@@ -27,9 +29,13 @@ export class PropertiesController {
 
   @Get('simple-pagination')
   findAll(@Query(ValidationPipe) paginationDto: PaginationDto) {
-    console.log(paginationDto);
     const { limit = 10, offset = 0 } = paginationDto;
-    return this.propertiesService.findAll(limit, offset);
+    
+    const properties = this.propertiesService.findAll(limit, offset);
+    // console.log(properties);
+    // console.log('Serialized:', plainToInstance(Property, properties));
+    return properties;
+
   }
   @Get()
   @ApiPaginatedResponse(CreatePropertyDto)
@@ -42,13 +48,13 @@ export class PropertiesController {
     return this.propertiesService.findOneById(id);
   }
 
-  // @Patch(':id')
-  // update(
-  //   @Param('id', ParseUUIDPipe) id: string,
-  //   @Body() updatePropertyDto: UpdatePropertyDto,
-  // ) {
-  //   return this.propertiesService.update(id, updatePropertyDto);
-  // }
+  @Patch(':id')
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updatePropertyDto: UpdatePropertyDto,
+  ) {
+    return this.propertiesService.update(id, updatePropertyDto);
+  }
 
   @Delete(':id')
   // @HttpCode(204)

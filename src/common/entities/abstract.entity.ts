@@ -3,11 +3,11 @@ import { CreateDateColumn, PrimaryGeneratedColumn } from "typeorm";
 
 export abstract class AbstractEntity {
     
-    @PrimaryGeneratedColumn('uuid')
     @Exclude()
+    @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @CreateDateColumn()
     @Exclude()
+    @CreateDateColumn()
     createdAt: Date;
 }
