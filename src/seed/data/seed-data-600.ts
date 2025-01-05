@@ -5799,7 +5799,7 @@ export const seedData = [
     area: 114,
     garage: false,
     status: PropertyStatus.RENTED,
-    slug: 'administration',
+    slug: 'administration-should',
     images: [
       'https://www.lorempixel.com/629/281',
       'https://placeimg.com/101/456/any',
