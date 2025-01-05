@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { plainToInstance } from 'class-transformer';
-import { PageDto, PageMetaDto, PageOptionsDto } from 'src/common/dtos';
+import { PageDto, PageMetaDto, PageOptionsDto } from '../../common/dtos';
 import { DataSource, EntityManager, Repository } from 'typeorm';
 import { CreatePropertyDto, UpdatePropertyDto } from '../dtos';
 import {
@@ -142,6 +142,16 @@ export class PropertiesServiceDb {
     await this.propertyRepository.delete(id);
   }
 
+  async deleteAll() {
+    const query = this.propertyRepository.createQueryBuilder('property');
+    try {
+      await query.delete().execute();
+    } catch (error) {
+      this.handleError(error);
+    }
+    this.logger.log('All properties deleted');
+    return { message: 'All properties deleted' };
+  }
   private handleError(error: any) {
     console.log(error);
     const exception_codes = {

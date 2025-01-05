@@ -15,7 +15,6 @@ import { PropertiesServiceDb } from './services';
 import { PageOptionsDto, PageDto, PaginationDto } from '../common/dtos';
 import { ApiPaginatedResponse } from '../common/decorators';
 import { ApiTags } from '@nestjs/swagger';
-import { plainToInstance } from 'class-transformer';
 
 @Controller('properties')
 @ApiTags('properties')
@@ -32,8 +31,7 @@ export class PropertiesController {
     const { limit = 10, offset = 0 } = paginationDto;
     
     const properties = this.propertiesService.findAll(limit, offset);
-    // console.log(properties);
-    // console.log('Serialized:', plainToInstance(Property, properties));
+
     return properties;
 
   }
@@ -56,9 +54,15 @@ export class PropertiesController {
     return this.propertiesService.update(id, updatePropertyDto);
   }
 
+  @Delete("/all")
+  removeAll(){
+    return this.propertiesService.deleteAll();
+  }
+
   @Delete(':id')
   // @HttpCode(204)
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.propertiesService.remove(id);
   }
+  
 }

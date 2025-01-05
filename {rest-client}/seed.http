@@ -1,0 +1,4 @@
+@base_url=http://localhost:3000
+
+### Seed execution
+GET {{base_url}}/seed HTTP/1.1

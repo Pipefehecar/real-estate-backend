@@ -8,5 +8,6 @@ import { PropertiesServiceDb } from './services';
   controllers: [PropertiesController],
   providers: [PropertiesServiceDb],
   imports: [TypeOrmModule.forFeature([Property, PropertyImage])],
+  exports: [PropertiesServiceDb, TypeOrmModule],// si necesitamos usar los repositorios en otros modulos
 })
 export class PropertiesModule {}

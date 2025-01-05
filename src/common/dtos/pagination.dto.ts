@@ -15,7 +15,6 @@ export class PaginationDto {
 //   @Type(() => Number) // This is necessary to transform the query parameter to a number
   limit?: number;
 
-  @IsPositive()
   @IsNumber()
   @IsOptional()
   @Min(0)
