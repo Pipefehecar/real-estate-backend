@@ -44,7 +44,7 @@ export class Property extends AbstractEntity {
 
   tags: string[];
 
-  @Column('varchar', { length: 100, unique: true, nullable: true })
+  @Column('varchar', { length: 100, unique: true })
   slug: string;
 
   @BeforeInsert()

@@ -14,6 +14,7 @@ import {
   PropertyImage as ImageEntity,
   Property as PropertyEntity,
 } from '../entities';
+import { handleError } from '../../common/utils/handle-error';
 
 @Injectable()
 export class PropertiesServiceDb {
@@ -39,7 +40,7 @@ export class PropertiesServiceDb {
       await this.propertyRepository.save(newProperty);
       return { ...newProperty, images };
     } catch (error) {
-      this.handleError(error);
+      handleError(error);
     }
   }
 
@@ -112,7 +113,7 @@ export class PropertiesServiceDb {
 
     } catch (error) {
       await queryRunner.rollbackTransaction();
-      this.handleError(error);
+      handleError(error);
     } finally {
       await queryRunner.release();
     }
@@ -147,22 +148,10 @@ export class PropertiesServiceDb {
     try {
       await query.delete().execute();
     } catch (error) {
-      this.handleError(error);
+      handleError(error);
     }
     this.logger.log('All properties deleted');
     return { message: 'All properties deleted' };
   }
-  private handleError(error: any) {
-    console.log(error);
-    const exception_codes = {
-      '23502': 'Not null violation',
-      '23505': 'Unique violation',
-    };
-    for (const code in exception_codes) {
-      if (error.code === code)
-        throw new BadRequestException(exception_codes[code]);
-    }
-    this.logger.error(error.message, error.stack);
-    throw new InternalServerErrorException('Unexpected error occurred');
-  }
+  
 }

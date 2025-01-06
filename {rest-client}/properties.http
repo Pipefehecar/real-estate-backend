@@ -32,8 +32,8 @@ Content-Type: application/json
     "status": "active"
 }
 
-@term=c4f16e6e-b2f2-4c87-9544-911689194942
 ### Get Property by ID
+@term=c4f16e6e-b2f2-4c87-9544-911689194942
 GET {{base_url}}/properties/{{term}} HTTP/1.1
 Content-Type: application/json
 

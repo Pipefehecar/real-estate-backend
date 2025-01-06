@@ -1,0 +1,26 @@
+@base_url=http://localhost:3000
+
+### REGISTER
+POST {{base_url}}/auth/register HTTP/1.1
+Content-Type: application/json
+
+{
+    "email": "uisfeheCa@mail.com ",
+    "password": "123456Ab",
+    "fullName": "Luis Herrera"
+}
+
+### LOGIN
+POST {{base_url}}/auth/login HTTP/1.1
+Content-Type: application/json
+
+{
+    "email": "luisfehec@mail.com",
+    "password": "123456Ab"
+}
+
+### GET USER - test authentication by bearer token
+@token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Imx1aXNmZWhlY0BtYWlsLmNvbSIsImlhdCI6MTczNjE4MzAyNSwiZXhwIjoxNzM2MTkwMjI1fQ.iHJ8TBrKAyepE7QqAnmZ3CqvbZ4ZsuDreA0Lu_txw2I
+GET {{base_url}}/auth/me HTTP/1.1
+Authorization: Bearer {{token}}
+Content-Type: application/json
